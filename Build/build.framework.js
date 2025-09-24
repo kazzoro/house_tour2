@@ -1283,10 +1283,10 @@ function dbg(text) {
 // === Body ===
 
 var ASM_CONSTS = {
-  6712576: () => { Module['emscripten_get_now_backup'] = performance.now; },  
- 6712631: ($0) => { performance.now = function() { return $0; }; },  
- 6712679: ($0) => { performance.now = function() { return $0; }; },  
- 6712727: () => { performance.now = Module['emscripten_get_now_backup']; }
+  6713424: () => { Module['emscripten_get_now_backup'] = performance.now; },  
+ 6713479: ($0) => { performance.now = function() { return $0; }; },  
+ 6713527: ($0) => { performance.now = function() { return $0; }; },  
+ 6713575: () => { performance.now = Module['emscripten_get_now_backup']; }
 };
 
 
@@ -7564,6 +7564,11 @@ var ASM_CONSTS = {
   function _JS_SystemInfo_HasWebGPU()
   	{
   		return Module.SystemInfo.hasWebGPU;
+  	}
+
+  function _JS_SystemInfo_IsMobile() 
+  	{
+  		return Module.SystemInfo.mobile;
   	}
 
   function _JS_UnityEngineShouldQuit() {
@@ -16514,6 +16519,7 @@ var wasmImports = {
   "JS_SystemInfo_HasFullscreen": _JS_SystemInfo_HasFullscreen,
   "JS_SystemInfo_HasWebGL": _JS_SystemInfo_HasWebGL,
   "JS_SystemInfo_HasWebGPU": _JS_SystemInfo_HasWebGPU,
+  "JS_SystemInfo_IsMobile": _JS_SystemInfo_IsMobile,
   "JS_UnityEngineShouldQuit": _JS_UnityEngineShouldQuit,
   "JS_WebCamVideo_GetNativeHeight": _JS_WebCamVideo_GetNativeHeight,
   "JS_WebCamVideo_GetNativeWidth": _JS_WebCamVideo_GetNativeWidth,
