@@ -151,13 +151,21 @@
 
       document.body.appendChild(script);
 
-      window.addEventListener("message", (event) => {
-  // Basic security check (you can filter event.origin if needed)
+   
+window.addEventListener("message", (event) => {
+  console.log("[Iframe] Message event received:", event);
+
   if (event.data && event.data.houseId) {
-    console.log("Received houseId:", event.data.houseId);
-    if (unityInstance) {
+    console.log("[Iframe] ✅ houseId found:", event.data.houseId);
+
+    if (typeof unityInstance !== "undefined") {
+      console.log("[Iframe] Sending houseId to Unity:", event.data.houseId);
       unityInstance.SendMessage("GameManager", "SelectHouse", event.data.houseId.toString());
+    } else {
+      console.warn("[Iframe] ⚠️ unityInstance not ready yet!");
     }
+  } else {
+    console.log("[Iframe] Message did not contain houseId:", event.data);
   }
 });
 
