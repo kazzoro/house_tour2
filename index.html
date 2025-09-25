@@ -151,6 +151,16 @@
 
       document.body.appendChild(script);
 
+      window.addEventListener("message", (event) => {
+  // Basic security check (you can filter event.origin if needed)
+  if (event.data && event.data.houseId) {
+    console.log("Received houseId:", event.data.houseId);
+    if (unityInstance) {
+      unityInstance.SendMessage("GameManager", "SelectHouse", event.data.houseId.toString());
+    }
+  }
+});
+
     </script>
   </body>
 </html>
