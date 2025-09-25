@@ -20,7 +20,9 @@
       <div id="unity-footer">
         <div id="unity-logo-title-footer"></div>
         <div id="unity-fullscreen-button"></div>
-        <div id="unity-build-title">House Tour</div>
+        <div id="unity-build-title">
+          House Tour <span id="house-id-text" style="font-weight: bold; margin-left: 10px; color: #333;"></span>
+        </div>
       </div>
     </div>
 
@@ -28,6 +30,11 @@
       var canvas = document.querySelector("#unity-canvas");
       window.unityInstance = null; // Global reference for Unity instance
       window.unityMessageQueue = []; // Queue messages if Unity isn't ready
+
+      // Get houseId from URL at page load:
+      const params = new URLSearchParams(window.location.search);
+      let currentHouseId = params.get("houseId") || "Unknown";
+      document.getElementById("house-id-text").textContent = `(House ID: ${currentHouseId})`;
 
       function unityShowBanner(msg, type) {
         var warningBanner = document.querySelector("#unity-warning");
@@ -73,7 +80,7 @@
         canvas.style.width = "960px";
         canvas.style.height = "600px";
       }
- 
+
       document.querySelector("#unity-loading-bar").style.display = "block";
 
       var script = document.createElement("script");
@@ -82,33 +89,42 @@
         createUnityInstance(canvas, config, (progress) => {
           document.querySelector("#unity-progress-bar-full").style.width = 100 * progress + "%";
         })
-        .then((instance) => {
-          window.unityInstance = instance;
-          console.log("[Unity] ✅ Unity instance ready!");
-          document.querySelector("#unity-loading-bar").style.display = "none";
-          document.querySelector("#unity-fullscreen-button").onclick = () => {
-            unityInstance.SetFullscreen(1);
-          };
+          .then((instance) => {
+            window.unityInstance = instance;
+            console.log("[Unity] ✅ Unity instance ready!");
+            document.querySelector("#unity-loading-bar").style.display = "none";
+            document.querySelector("#unity-fullscreen-button").onclick = () => {
+              unityInstance.SetFullscreen(1);
+            };
 
-          // Flush queued messages
-          while (window.unityMessageQueue.length > 0) {
-            const msg = window.unityMessageQueue.shift();
-            console.log("[Unity] 🚀 Sending queued message:", msg);
-            window.unityInstance.SendMessage("GameManager", "SelectHouse", msg.houseId.toString());
-          }
-        })
-        .catch((message) => {
-          alert(message);
-        });
+            // Send initial houseId to Unity if exists
+            if (currentHouseId !== "Unknown") {
+              instance.SendMessage("GameManager", "SelectHouse", currentHouseId.toString());
+            }
+
+            // Flush queued messages
+            while (window.unityMessageQueue.length > 0) {
+              const msg = window.unityMessageQueue.shift();
+              console.log("[Unity] 🚀 Sending queued message:", msg);
+              window.unityInstance.SendMessage("GameManager", "SelectHouse", msg.houseId.toString());
+            }
+          })
+          .catch((message) => {
+            alert(message);
+          });
       };
       document.body.appendChild(script);
 
-      // Listen for messages from parent (React)
+      // Listen for messages from parent (React or other page)
       window.addEventListener("message", (event) => {
         console.log("[Iframe] 📩 Message received:", event);
 
         if (event.data && event.data.houseId) {
           console.log("[Iframe] ✅ Found houseId:", event.data.houseId);
+          currentHouseId = event.data.houseId;
+
+          // Update text on page
+          document.getElementById("house-id-text").textContent = `(House ID: ${currentHouseId})`;
 
           if (window.unityInstance) {
             console.log("[Iframe] 🚀 Sending houseId to Unity:", event.data.houseId);
